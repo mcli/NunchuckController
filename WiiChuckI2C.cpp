@@ -39,7 +39,9 @@ int WiiChuckI2C::init()
   }
 
   I2c.begin();
-  return I2c.write(NUNCHUCK_ADDRESS,0x40,0x00); // talk to nunchuck
+  int status=I2c.write(NUNCHUCK_ADDRESS,0x40,0x00); // talk to nunchuck
+  delay(100); // pause for things to settle down
+  return status;
 }
 
 /**
