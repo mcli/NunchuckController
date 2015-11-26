@@ -1,0 +1,22 @@
+#######################################
+# Syntax Coloring Map For WiiChuckI2C
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+WiiChuckI2C KEYWORD1
+WiiChuckButton	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+init	KEYWORD2
+read	KEYWORD2
+
+#######################################
+# Instances (KEYWORD2)
+#######################################
+
+wiiChuckI2C	KEYWORD2
