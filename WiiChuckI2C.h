@@ -24,11 +24,21 @@ enum WiiChuckButton
 #define NUNCHUCK_ADDRESS 0x52
 
 /**
- * For Micromagician:
- * Connect SDA to Pin A4, SCL to Pin A5
- * References: 
- * http://www.instructables.com/id/Step-by-Step-guide-to-Micro-Magician-robot-control/step8/Analog-inputs/
- * http://dsscircuits.com/articles/86-articles/66-arduino-i2c-master-library
+ * Nunchuck utility library.
+ *
+ * For Micromagician, Connect SDA to Pin A4, SCL to Pin A5
+ *
+ * References:
+ * 
+ * Micromagician:  
+ *  - http://www.instructables.com/id/Step-by-Step-guide-to-Micro-Magician-robot-control/step8/Analog-inputs/
+ * 
+ * i2c-master-library:
+ *  - http://dsscircuits.com/articles/86-articles/66-arduino-i2c-master-library
+ *
+ * nunchuck i2c interface:
+ *  - http://web.engr.oregonstate.edu/~johnstay/ece375/pdf/nunchuk.pdf
+ *  - http://www.robotshop.com/media/files/PDF/inex-zx-nunchuck-datasheet.pfd
  **/
 class WiiChuckI2C
 {

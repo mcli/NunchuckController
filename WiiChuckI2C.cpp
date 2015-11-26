@@ -2,14 +2,6 @@
 #include "WiiChuckI2C.h"
 
 /**
- * For Micromagician:
- * Connect SDA to Pin A4, SCL to Pin A5
- * References: 
- * http://www.instructables.com/id/Step-by-Step-guide-to-Micro-Magician-robot-control/step8/Analog-inputs/
- * http://dsscircuits.com/articles/86-articles/66-arduino-i2c-master-library
- **/
-
-/**
  * Buffer to store nunchuck data
  **/
 static unsigned char nunchuckBuf[6];
