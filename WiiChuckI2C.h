@@ -58,7 +58,17 @@ public:
    * @return 0 if success, 1 if error
    **/
   int read(int *joy, int *accel, WiiChuckButton &button);
-  
+
+  /**
+   * Set the joystick center value to be the current value.  Make sure
+   * Joy stick is in center position.
+   * @return 0 if successful
+   * @return 1 if error
+   **/
+  int calibrateJoyCenter(void);
+
+private:
+  uint8_t joyCenter_[2];
 };
 
 extern WiiChuckI2C  wiiChuckI2C;

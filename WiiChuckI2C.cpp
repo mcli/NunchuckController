@@ -8,6 +8,8 @@ static unsigned char nunchuckBuf[6];
 
 WiiChuckI2C::WiiChuckI2C()
 {
+  joyCenter_[0]=114;
+  joyCenter_[1]=114;
 }
 
 /**
@@ -62,10 +64,9 @@ int WiiChuckI2C::read(int *joy, int *accel, WiiChuckButton &button)
   int readStatus=I2c.read(NUNCHUCK_ADDRESS,6,nunchuckBuf);
 
   // convert raw values into normalized values
-  const int joyCenter=114;
   const int accelOffset[3]={0,0,0};
-  joy[0]=(int)nunchuckBuf[0]-joyCenter;
-  joy[1]=(int)nunchuckBuf[1]-joyCenter;
+  joy[0]=(int)nunchuckBuf[0]-joyCenter_[0];
+  joy[1]=(int)nunchuckBuf[1]-joyCenter_[1];
   accel[0]=(nunchuckBuf[2]<<2)+((nunchuckBuf[5]>>2)&0x3)-accelOffset[0];
   accel[1]=(nunchuckBuf[3]<<2)+((nunchuckBuf[5]>>4)&0x3)-accelOffset[1];
   accel[2]=(nunchuckBuf[4]<<2)+((nunchuckBuf[5]>>6)&0x3)-accelOffset[2];
@@ -81,6 +82,24 @@ int WiiChuckI2C::read(int *joy, int *accel, WiiChuckButton &button)
     button=BUTTON_NONE;
   }
   return readStatus;
+}
+
+int WiiChuckI2C::calibrateJoyCenter()
+{
+  int joyValue[2], accel[3];
+  WiiChuckButton button;
+  int status = read(joyValue, accel, button);
+  if (0 == status)
+  {
+    if (0 != joyValue[0])
+    {
+      joyCenter_[0]-=joyValue[0];
+    }
+    if (0 != joyValue[1])
+    {
+      joyCenter_[1]-= joyValue[1];
+    }
+  }
 }
 
 WiiChuckI2C wiiChuckI2C=WiiChuckI2C();
