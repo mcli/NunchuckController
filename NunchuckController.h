@@ -1,5 +1,5 @@
 /*
-  WiiChuckI2C Library for Wii Nunchuck 
+  Nunchuck Controller Library for Wii Nunchuck 
   Copyright (c) 2015 Maurice Ling.  All rights reserved.
 */
 
@@ -11,10 +11,10 @@
 
 #include <inttypes.h>
 
-#ifndef WII_CHUCK_H
-#define WII_CHUCK_H
+#ifndef NUNCHUCK_CONTROLLER_H
+#define NUNCHUCK_CONTROLLER_H
 
-enum WiiChuckButton
+enum NunchuckButton
 {
   BUTTON_NONE,
   BUTTON_C,
@@ -40,10 +40,10 @@ enum WiiChuckButton
  *  - http://web.engr.oregonstate.edu/~johnstay/ece375/pdf/nunchuk.pdf
  *  - http://www.robotshop.com/media/files/PDF/inex-zx-nunchuck-datasheet.pfd
  **/
-class WiiChuckI2C
+class NunchuckController
 {
 public:
-  WiiChuckI2C();
+  NunchuckController();
 
   /**
    * initialize the nunchuck
@@ -57,7 +57,7 @@ public:
    * @param accel Array of 3 integers to hold accelerometer info
    * @return 0 if success, 1 if error
    **/
-  int read(int *joy, int *accel, WiiChuckButton &button);
+  int read(int *joy, int *accel, NunchuckButton &button);
 
   /**
    * Set the joystick center value to be the current value.  Make sure
@@ -67,10 +67,22 @@ public:
    **/
   int calibrateJoyCenter(void);
 
+  /**
+   * Set accelerometer change sensitivity.
+   **/
+  void setAccelSensitivity(int *sensitivity);
+  
+  /**
+   * Delta accelerometer readings
+   **/
+  int deltaAccel_[3];
+  
 private:
   uint8_t joyCenter_[2];
+  int lastAccel_[3];
+  int accelSensitivity_[3];
 };
 
-extern WiiChuckI2C  wiiChuckI2C;
+extern NunchuckController  nunchuckCtl;
 
 #endif

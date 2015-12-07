@@ -1,21 +1,27 @@
 #include <I2C.h>
-#include "WiiChuckI2C.h"
+#include "NunchuckController.h"
 
 /**
  * Buffer to store nunchuck data
  **/
 static unsigned char nunchuckBuf[6];
 
-WiiChuckI2C::WiiChuckI2C()
+NunchuckController::NunchuckController()
 {
   joyCenter_[0]=114;
   joyCenter_[1]=114;
+  deltaAccel_[0]=lastAccel_[0]=0;
+  deltaAccel_[1]=lastAccel_[1]=0;
+  deltaAccel_[2]=lastAccel_[2]=0;
+
+  int sensitivity[3]={10,10,10};
+  setAccelSensitivity(sensitivity);
 }
 
 /**
  * Initialize the wiiChuck
  **/
-int WiiChuckI2C::init()
+int NunchuckController::init()
 {
   int pingResult=I2c.ping(NUNCHUCK_ADDRESS);
   switch (pingResult)
@@ -53,7 +59,7 @@ int WiiChuckI2C::init()
  *  4, 5 - LSB Y
  *  6, 7 - LSB Z
  **/
-int WiiChuckI2C::read(int *joy, int *accel, WiiChuckButton &button)
+int NunchuckController::read(int *joy, int *accel, NunchuckButton &button)
 {
   int writeStatus=I2c.write(NUNCHUCK_ADDRESS,0x00); // Conversion command
   if (0 != writeStatus)
@@ -70,6 +76,23 @@ int WiiChuckI2C::read(int *joy, int *accel, WiiChuckButton &button)
   accel[0]=(nunchuckBuf[2]<<2)+((nunchuckBuf[5]>>2)&0x3)-accelOffset[0];
   accel[1]=(nunchuckBuf[3]<<2)+((nunchuckBuf[5]>>4)&0x3)-accelOffset[1];
   accel[2]=(nunchuckBuf[4]<<2)+((nunchuckBuf[5]>>6)&0x3)-accelOffset[2];
+
+  for (int i = 0; i < 3; i++)
+  {
+    if (lastAccel_[i] != 0)
+    {
+      int delta=accel[i]-lastAccel_[i];
+      if (abs(delta) > accelSensitivity_[i])
+      {
+        deltaAccel_[i]=delta;
+      } else
+      {
+        deltaAccel_[i]=0;
+      }
+    }
+    lastAccel_[i]=accel[i];
+  }
+  
   // invert the button values (raw 1 is not pressed)
   if (!(nunchuckBuf[5]&1))
   {
@@ -84,10 +107,10 @@ int WiiChuckI2C::read(int *joy, int *accel, WiiChuckButton &button)
   return readStatus;
 }
 
-int WiiChuckI2C::calibrateJoyCenter()
+int NunchuckController::calibrateJoyCenter()
 {
   int joyValue[2], accel[3];
-  WiiChuckButton button;
+  NunchuckButton button;
   int status = read(joyValue, accel, button);
   if (0 == status)
   {
@@ -102,4 +125,12 @@ int WiiChuckI2C::calibrateJoyCenter()
   }
 }
 
-WiiChuckI2C wiiChuckI2C=WiiChuckI2C();
+void NunchuckController::setAccelSensitivity(int *sensitivity)
+{
+  for (int i = 0; i < 3; i++)
+  {
+    accelSensitivity_[i]=sensitivity[i];
+  }
+}
+
+NunchuckController nunchuckCtl=NunchuckController();
