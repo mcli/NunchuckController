@@ -69,13 +69,21 @@ int NunchuckController::read(int *joy, int *accel, NunchuckButton &button)
   delay(100);
   int readStatus=I2c.read(NUNCHUCK_ADDRESS,6,nunchuckBuf);
 
+  //
+  // Decode values for accelerometer, skipping joystick values which are not
+  // encoded.
+  //
+  for (int i = 2; i < sizeof(nunchuckBuf); i++)
+  {
+    nunchuckBuf[i]=(nunchuckBuf[i]^0x17)+0x17;
+  }
+
   // convert raw values into normalized values
-  const int accelOffset[3]={0,0,0};
   joy[0]=(int)nunchuckBuf[0]-joyCenter_[0];
   joy[1]=(int)nunchuckBuf[1]-joyCenter_[1];
-  accel[0]=(nunchuckBuf[2]<<2)+((nunchuckBuf[5]>>2)&0x3)-accelOffset[0];
-  accel[1]=(nunchuckBuf[3]<<2)+((nunchuckBuf[5]>>4)&0x3)-accelOffset[1];
-  accel[2]=(nunchuckBuf[4]<<2)+((nunchuckBuf[5]>>6)&0x3)-accelOffset[2];
+  accel[0]=(nunchuckBuf[2]<<2)+((nunchuckBuf[5]>>2)&0x3)-accelOffset_[0];
+  accel[1]=(nunchuckBuf[3]<<2)+((nunchuckBuf[5]>>4)&0x3)-accelOffset_[1];
+  accel[2]=(nunchuckBuf[4]<<2)+((nunchuckBuf[5]>>6)&0x3)-accelOffset_[2];
 
   for (int i = 0; i < 3; i++)
   {
@@ -107,7 +115,17 @@ int NunchuckController::read(int *joy, int *accel, NunchuckButton &button)
   return readStatus;
 }
 
-int NunchuckController::calibrateJoyCenter()
+float NunchuckController::computeRoll(int *accel)
+{
+  return atan(accel[0]/sqrt(pow(accel[1],2)+pow(accel[2],2)));
+}
+
+float NunchuckController::computePitch(int *accel)
+{
+  return -1*atan(accel[1]/sqrt(pow(accel[0],2)+pow(accel[2],2)));
+}
+
+int NunchuckController::calibrateJoyCenter(void)
 {
   int joyValue[2], accel[3];
   NunchuckButton button;
@@ -123,6 +141,37 @@ int NunchuckController::calibrateJoyCenter()
       joyCenter_[1]-= joyValue[1];
     }
   }
+  Serial.print("Joystick Center:  (");
+  Serial.print(joyCenter_[0]);
+  Serial.print(", ");
+  Serial.print(joyCenter_[0]);
+  Serial.println(")");
+}
+
+/**
+ * Calibrate x and y zeros, then use the average to estimate the z zero
+ **/
+int NunchuckController::calibrateAccel(void)
+{
+  int joyValue[2], accel[3];
+  NunchuckButton button;
+  int status = read(joyValue, accel, button);
+
+  accelOffset_[0]=accel[0];
+  accelOffset_[1]=accel[1];
+  accelOffset_[2]=(accel[0]+accel[1])/2;
+
+  Serial.print("Accel Offsets:  (");
+  for (int i = 0; i < 2; i++)
+  {
+    if (i != 0)
+    {
+      Serial.print(", ");
+    }
+    Serial.print(accel[i]);
+  }
+  Serial.println(")");
+  return status;
 }
 
 void NunchuckController::setAccelSensitivity(int *sensitivity)

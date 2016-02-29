@@ -60,12 +60,28 @@ public:
   int read(int *joy, int *accel, NunchuckButton &button);
 
   /**
+   * Compute Roll
+   **/
+  float computeRoll(int *accel);
+  
+  /**
+   * Compute Pitch
+   **/
+  float computePitch(int *accel);
+  
+  /**
    * Set the joystick center value to be the current value.  Make sure
    * Joy stick is in center position.
    * @return 0 if successful
    * @return 1 if error
    **/
   int calibrateJoyCenter(void);
+
+  /**
+   * Calibrate Accelerometer
+   * @return 0 for success, 1 for failure
+   */
+  int calibrateAccel(void);
 
   /**
    * Set accelerometer change sensitivity.
@@ -81,6 +97,10 @@ private:
   uint8_t joyCenter_[2];
   int lastAccel_[3];
   int accelSensitivity_[3];
+  /**
+   * Offset for accelerometer, where zero is level.
+   **/
+  int accelOffset_[3]={0,0,0};
 };
 
 extern NunchuckController  nunchuckCtl;

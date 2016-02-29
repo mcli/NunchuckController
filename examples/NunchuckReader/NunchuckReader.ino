@@ -16,6 +16,8 @@ void setup()
   }
 //  int sensitivity[3]={10,100,100};
 //  nunchuckCtl.setAccelSensitivity(sensitivity);
+  nunchuckCtl.calibrateAccel();
+  nunchuckCtl.calibrateJoyCenter();
 }
 
 void loop()
@@ -77,6 +79,11 @@ void loop()
       Serial.print(nunchuckCtl.deltaAccel_[i]);
       Serial.print(")");
     }
+    Serial.print(", Roll:  ");
+    Serial.print(nunchuckCtl.computeRoll(accel)*180/PI);
+    Serial.print(", Pitch:  ");
+    Serial.print(nunchuckCtl.computePitch(accel)*180/PI);
+
     switch(button)
     {
     case BUTTON_Z:
