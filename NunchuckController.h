@@ -100,7 +100,7 @@ private:
   /**
    * Offset for accelerometer, where zero is level.
    **/
-  int accelOffset_[3]={0,0,0};
+  int accelOffset_[3];
 };
 
 extern NunchuckController  nunchuckCtl;
